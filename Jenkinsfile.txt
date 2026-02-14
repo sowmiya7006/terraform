@@ -1,0 +1,54 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_DEFAULT_REGION = 'ap-south-1'
+    }
+
+    stages {
+
+        stage('Source Code') {
+            steps {
+                echo 'Cloning Repository...'
+                git branch: 'main', url: 'https://github.com/Marvel-k23/jenkins.git'
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                echo 'Initializing Terraform...'
+                sh 'terraform init'
+            }
+        }
+
+        stage('Terraform Validate') {
+            steps {
+                echo 'Validating Configuration...'
+                sh 'terraform validate'
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                echo 'Planning Infrastructure...'
+                sh 'terraform plan'
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                echo 'Applying Infrastructure...'
+                sh 'terraform apply -auto-approve'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Terraform Deployment Successful!'
+        }
+        failure {
+            echo 'Terraform Deployment Failed!'
+        }
+    }
+}
